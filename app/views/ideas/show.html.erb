@@ -1,0 +1,94 @@
+<h2><%= @idea.title %></h2>
+
+<div>
+ <small>By <%= @idea.user&.full_name || "[DELETED]" %></small>
+</div>
+
+<p><%= @idea.body %></p>
+
+<div>
+  <small>
+    Posted <%= time_ago_in_words(@idea.created_at) %> ago
+  </small>
+  •
+  <small>
+    Last edited <%= time_ago_in_words(@idea.updated_at) %> ago
+  </small>
+  •
+</div>
+
+<div>
+  <% if can?(:edit, @idea) %>
+    <small><%= link_to "Edit", edit_idea_path(@idea) %></small>
+  <% end %>
+
+  <% if can?(:delete, @idea) %>
+    <small>
+      <%= link_to(
+        "Delete",
+        idea_path(@idea),
+        method: :delete,
+        data: {
+          confirm: "Are you sure?"
+        }
+      ) %>
+    </small>
+  <% end %>
+</div>
+
+<h2>Reviews</h2>
+
+<%= form_for [@idea, @review] do |f| %>
+  <% if @review.errors.present? %>
+    <p>
+      <%= @review.errors.full_messages.join(', ') %>
+    </p>
+  <% end %>
+
+  <div>
+    <%= f.text_area(
+      :body,
+      class: "form-control",
+      cols: 60,
+      rows: 6,
+      placeholder: "What are your thoughts?"
+    ) %>
+  </div>
+  <%= f.submit "Submit" %>
+<% end %>
+
+<div class="review-list">
+  <% @reviews.each do |review| %>
+    <div>
+      <small>
+        <strong>
+          <%= review.user&.full_name || "[DELETE]"%> wrote:
+        </strong>
+      </small>
+
+      <p>
+        <%= review.body %> <br />
+        <% if can?(:delete, review) %>
+          <small>
+            <%= link_to(
+              "Delete",
+              idea_review_path(@idea.id, review.id),
+              method: :delete,
+              data: {
+                confirm: "Are you sure?"
+              }
+            ) %>
+          </small>
+          •
+        <% end %>
+        <small>
+          Posted <%= time_ago_in_words(review.created_at) %> ago
+        </small>
+        •
+        <small>
+          Last edited <%= time_ago_in_words(review.updated_at) %> ago
+        </small>
+      </p>
+    </div>
+  <% end %>
+</div>
